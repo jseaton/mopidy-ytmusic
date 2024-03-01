@@ -995,6 +995,10 @@ class YTMusicLibraryProvider(backend.LibraryProvider):
         sartists = set()
         for result in results:
             if result["resultType"] == "song":
+                if result["category"] != "Songs":
+                    logger.debug("Found a funny album playlist thing, skipping: " + repr(result))
+                    continue
+
                 if field == "track" and not any(
                     q.casefold() == result["title"].casefold() for q in queries
                 ):
