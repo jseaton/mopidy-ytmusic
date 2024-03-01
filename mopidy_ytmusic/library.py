@@ -932,7 +932,7 @@ class YTMusicLibraryProvider(backend.LibraryProvider):
             # if song["videoId"] not in self.TRACKS:
             try:
                 length = [int(i) for i in song["duration"].split(":")]
-            except ValueError:
+            except (ValueError, KeyError):
                 length = [0, 0]
             # Annoying workaround for Various Artists
             if (
