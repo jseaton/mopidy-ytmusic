@@ -833,21 +833,22 @@ class YTMusicLibraryProvider(backend.LibraryProvider):
         return ret
 
     def artistToTracks(self, artist):
-        if (
-            "songs" in artist
-            and "browseId" in artist["songs"]
-            and artist["songs"]["browseId"] is not None
-        ):
-            res = self.backend.api.get_playlist(
-                artist["songs"]["browseId"],
-                limit=self.backend.playlist_item_limit,
-            )
-            tracks = self.playlistToTracks(res)
-            logger.debug(
-                "YTMusic found %d tracks for %s", len(tracks), artist["name"]
-            )
-            return tracks
-        return None
+        tracks = []
+        for cat in ["songs", "videos"]:
+            if (
+                cat in artist
+                and "browseId" in artist[cat]
+                and artist[cat]["browseId"] is not None
+            ):
+                res = self.backend.api.get_playlist(
+                    artist[cat]["browseId"],
+                    limit=self.backend.playlist_item_limit,
+                )
+                tracks += self.playlistToTracks(res)
+                logger.debug(
+                    "YTMusic found %d tracks for %s", len(tracks), artist["name"]
+                )
+        return tracks
 
     def uploadAlbumToTracks(self, album, bId):
         ret = []
