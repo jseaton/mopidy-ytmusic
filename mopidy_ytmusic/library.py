@@ -469,7 +469,7 @@ class YTMusicLibraryProvider(backend.LibraryProvider):
                     )
         if (bId) in self.TRACKS:
             return [self.TRACKS[bId]]
-        else:
+        elif bId:
             return [self.getTrack(bId)]
         return []
 
