@@ -1,9 +1,9 @@
 import re
-from urllib.parse import parse_qs
+from urllib.parse import parse_qs, urlparse, urlencode
 
 import requests
 from mopidy import backend
-from pytube.cipher import Cipher
+from pytubefix.cipher import Cipher
 
 from mopidy_ytmusic import logger
 
@@ -20,7 +20,7 @@ class YTMusicPlaybackProvider(backend.PlaybackProvider):
         self.Youtube_Player_URL = playerurl
         response = requests.get("https://music.youtube.com" + playerurl)
         m = re.search(r"signatureTimestamp[:=](\d+)", response.text)
-        self.PyTubeCipher = Cipher(js=response.text)
+        self.PyTubeCipher = Cipher(js=response.text, js_url="https://music.youtube.com" + playerurl)
         if m:
             self.signatureTimestamp = m.group(1)
             logger.debug(
@@ -143,10 +143,25 @@ class YTMusicPlaybackProvider(backend.PlaybackProvider):
             # Use Youtube-DL's Info Extractor to decode the signature.
             if "signatureCipher" in playstr:
                 sc = parse_qs(playstr["signatureCipher"])
-                sig = self.PyTubeCipher.get_signature(
+
+                parsed_url = urlparse(sc["url"][0])
+                url_params = parse_qs(parsed_url.query)
+                url_params = {
+                    k: v[0] for k, v in url_params.items()
+                }
+
+                url_params["ratebypass"] = "yes"
+
+                url_params["sig"] = self.PyTubeCipher.get_signature(
                     ciphered_signature=sc["s"][0]
                 )
-                url = sc["url"][0] + "&sig=" + sig + "&ratebypass=yes"
+
+                if "n" in url_params:
+                    initial_n = url_params['n']
+                    discovered_n = self.PyTubeCipher.get_throttling(initial_n)
+                    url_params["n"] = discovered_n
+
+                url = f'{parsed_url.scheme}://{parsed_url.netloc}{parsed_url.path}?{urlencode(url_params)}'
             elif "url" in playstr:
                 url = playstr["url"]
             else:

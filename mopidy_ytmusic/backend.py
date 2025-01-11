@@ -17,6 +17,7 @@ from ytmusicapi.navigation import (
     nav,
 )
 from ytmusicapi import YTMusic
+from ytmusicapi.auth.oauth.credentials import OAuthCredentials
 
 from mopidy_ytmusic import logger
 
@@ -69,7 +70,12 @@ class YTMusicBackend(
         if self.auth and not self.oauth:
             self.api = YTMusic(auth=self._ytmusicapi_auth_json)
         elif self.oauth:
-            self.api = YTMusic(auth=self._ytmusicapi_oauth_json)
+            oauth_credentials=OAuthCredentials(
+                client_id=config["ytmusic"]["oauth_client_id"],
+                client_secret=config["ytmusic"]["oauth_client_secret"],
+            )
+
+            self.api = YTMusic(auth=self._ytmusicapi_oauth_json, oauth_credentials=oauth_credentials)
         else:
             self.api = YTMusic()
 
