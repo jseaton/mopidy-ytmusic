@@ -14,7 +14,7 @@ class YTMusicCommand(commands.Command):
 
 
 class SetupCommand(commands.Command):
-    help = "Generate auth.json"
+    help = "Generate oauth.json"
 
     def run(self, args, config):
         from ytmusicapi.setup import setup_oauth
@@ -23,7 +23,7 @@ class SetupCommand(commands.Command):
         oauth2_client_secret = input("Enter your OAuth2 client secret: ")
 
         filepath = input(
-            "Enter the path where you want to save auth.json [default=current dir]: "
+            "Enter the path where you want to save oauth.json [default=current dir]: "
         )
         if not filepath:
             filepath = os.getcwd()
@@ -46,7 +46,9 @@ class SetupCommand(commands.Command):
         print("Update your mopidy.conf to reflect the new auth file:")
         print("   [ytmusic]")
         print("   enabled=true")
-        print("   auth_json=" + str(path))
+        print("   oauth_json=" + str(path))
+        print("   oauth_client_id=" + oauth2_client_id)
+        print("   oauth_client_secret=" + oauth2_client_secret)
         return 0
 
 
