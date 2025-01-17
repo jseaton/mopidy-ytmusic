@@ -21,7 +21,7 @@ license = "Apache-2.0"
 [tool.poetry.dependencies]
 python = "^3.7"
 Mopidy = "^3"
-pytube = "^12.1.0"
+pytubefix = "^8.11.0"
 ytmusicapi = ">=1.5.4"
 
 [tool.poetry.dev-dependencies]
